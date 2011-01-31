@@ -2,7 +2,6 @@ History.rdoc
 Manifest.txt
 README.rdoc
 Rakefile
-bin/hooker
 lib/hooker/base.rb
 lib/hooker.rb
 test/alt_entry.rb
