@@ -60,7 +60,7 @@ module Hooker
       load( file, true ) #wrap in in anonymous module
     end
 
-    # Yield log message to the specified block
+    # Register to yield log messages to the given block.
     def log_with( &block )
       @logger = block
     end

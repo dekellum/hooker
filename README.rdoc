@@ -10,7 +10,7 @@ syntax.
 
 Inspiration includes {Emacs Hook
 Functions}[http://www.gnu.org/software/emacs/manual/html_node/emacs/Hooks.html]
-(Lisp) and other ruby applications which supports configuration
+(Lisp) and other applications which support configuration
 files in ruby.
 
 === Features
@@ -18,12 +18,13 @@ files in ruby.
 * Hook Procs may be added by the configuration source in any order.
 * Hook Procs are executed only when applied by the extended
   application. Thus a single configuration source may include hook
-  procs that are left unused in certain contexts. This is useful
+  Procs that are left unused in certain contexts. This is useful
   when configuring across several different (contextually loaded)
-  modules.
+  modules from one source.
 * Supports chaining of hook Procs.
 * Provides an optional logging extension point Hooker.log_with
-* Can check and list any added hooks that were not applied.
+* Can check and list hooks that were not applied, including the call
+  site of where added.
 
 == Synopsis
 
@@ -42,6 +43,15 @@ and applied to override Job defaults:
      j.timeout = 10 * 60 #seconds
    end
 
+ end
+
+Hooker can be yielded to the config file via an alternative Module
+name, so as not to scare your mom, or to fully encapsulate its use:
+
+ class Chaplain
+   def self.configure
+     yield Hooker
+   end
  end
 
 == License
