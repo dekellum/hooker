@@ -32,7 +32,7 @@ files in ruby.
 Lets say an application has a 'Job' it would like to support
 hooks on:
 
- job = Hooker.mutate( :job, Job.new )
+ job = Hooker.apply( :job, Job.new )
 
 Then the following configuration of the job could optionally be loaded
 and applied to override Job defaults:

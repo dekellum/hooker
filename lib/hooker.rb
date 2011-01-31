@@ -33,7 +33,7 @@ module Hooker
     alias :scope :with
 
     # Add hook block by specified hook key. Will only be executed when
-    # mutate or inject is later called with the same key.  Multiple
+    # apply or inject is later called with the same key.  Multiple
     # hook blocks for the same key will be called in the order added.
     def add( key, &block )
       hooks[ sk( key ) ] << [ block, caller[0].to_s ]
@@ -42,16 +42,16 @@ module Hooker
     alias :setup :add
 
     # Pass the specified value to each previously added proc with
-    # matching key. Returns (often mutated) value.
-    def mutate( key, value )
+    # matching key. Returns (typically mutated) value.
+    def apply( key, value )
       applied << sk( key )
       hooks[ sk( key ) ].each { |hook| hook[0].call( value ) }
       value
     end
 
     # Inject value (or nil) into the chain of previously added procs,
-    # which should impl binary operations (i.e. return desired value),
-    # returning the last value from the last proc.
+    # which should implement binary operations (i.e. return desired
+    # value), and return the last value from the last proc.
     def inject( key, value = nil )
       applied << sk( key )
       hooks[ sk( key ) ].inject( value ) { |v, hook| hook[0].call( v ) }

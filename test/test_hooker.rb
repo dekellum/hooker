@@ -61,13 +61,13 @@ class TestContext < MiniTest::Unit::TestCase
     assert_equal( [ :a, :b ], Hooker.inject( :test, [] ) )
   end
 
-  def test_mutate
+  def test_apply
     Hooker.with do |h|
       h.add( :test ) { |h| h[ :prop ] = "a" }
       h.add( :test ) { |h| h[ :prop ] = "b" }
     end
 
-    h = Hooker.mutate( :test, { :prop => "orig" } )
+    h = Hooker.apply( :test, { :prop => "orig" } )
 
     assert_equal( "b", h[ :prop ] )
   end
