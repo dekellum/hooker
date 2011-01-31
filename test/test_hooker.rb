@@ -30,6 +30,7 @@ class AltEntry
 end
 
 class TestContext < MiniTest::Unit::TestCase
+
   def setup
     Hooker.log_with { |msg| puts; puts msg }
   end
@@ -95,12 +96,12 @@ class TestContext < MiniTest::Unit::TestCase
   end
 
   def test_load
-    Hooker.load_file( File.join( File.dirname( __FILE__ ), 'config.rb' ) )
+    Hooker.load_file( File.join( TESTDIR, 'config.rb' ) )
     assert_equal( :returned, Hooker.inject( :test ) )
   end
 
   def test_load_with_alt_entry
-    Hooker.load_file( File.join( File.dirname( __FILE__ ), 'alt_entry.rb' ) )
+    Hooker.load_file( File.join( TESTDIR, 'alt_entry.rb' ) )
     assert_equal( :returned, Hooker.inject( :test ) )
   end
 
