@@ -81,8 +81,8 @@ module Hooker
     end
 
     # Yields [ [ scope, key ], [ callers ] ] to block for each hook
-    # key added but not applied. Often this will suggest a typo or
-    # other mistake on the hook method authors part.
+    # key added but not applied.  Often this suggests a typo or other
+    # mistake by the hook Proc author.
     def check_not_applied
       ( hooks.keys - applied ).each do |rkey|
         calls = hooks[ rkey ].map { |blk, clr| clr }

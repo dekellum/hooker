@@ -53,7 +53,7 @@ name, so as not to scare your mom, or to fully encapsulate its use:
    end
  end
 
-Support config:
+Supports the config:
 
  Chaplain.configure do |c|
    c.setup( :job ) do |j|
