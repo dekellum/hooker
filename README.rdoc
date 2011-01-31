@@ -1,0 +1,61 @@
+= Hooker
+
+* http://github.com/dekellum/hooker
+
+== Description
+
+Hooker provides a simple registry of hooks or extension points,
+enabling decoupled run time configuration in terse but straight ruby
+syntax.
+
+Inspiration includes {Emacs Hook
+Functions}[http://www.gnu.org/software/emacs/manual/html_node/emacs/Hooks.html]
+(Lisp) and other ruby applications which supports configuration
+files in ruby.
+
+=== Features
+
+* Hook Procs may be added by the configuration source in any order.
+* Hook Procs are executed only when applied by the extended
+  application. Thus a single configuration source may include hook
+  procs that are left unused in certain contexts. This is useful
+  when configuring across several different (contextually loaded)
+  modules.
+* Supports chaining of hook Procs.
+* Provides an optional logging extension point Hooker.log_with
+* Can check and list any added hooks that were not applied.
+
+== Synopsis
+
+Lets say an application has a 'Job' it would like to support
+hooks on:
+
+ job = Hooker.mutate( :job, Job.new )
+
+Then the following configuration of the job could optionally be loaded
+and applied to override Job defaults:
+
+ Hooker.with do |h|
+
+   h.setup( :job ) do |j|
+     j.workers = 3
+     j.timeout = 10 * 60 #seconds
+   end
+
+ end
+
+== License
+
+Copyright (c) 2011 David Kellum
+
+Licensed under the Apache License, Version 2.0 (the "License"); you
+may not use this file except in compliance with the License.  You
+may obtain a copy of the License at:
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied.  See the License for the specific language governing
+permissions and limitations under the License.
