@@ -23,8 +23,11 @@ module Hooker
   class << self
 
     # Yields self to block (for scoping convenience)
-    def with( scope = nil )
+    def with( scp = :default )
+      prior, @scope = @scope, scp
       yield self
+    ensure
+      @scope = prior
     end
 
     alias :scope :with
@@ -33,7 +36,7 @@ module Hooker
     # mutate or inject is later called with the same key.  Multiple
     # hook blocks for the same key will be called in the order added.
     def add( key, &block )
-      hooks[ key ] << [ block, caller[0].to_s ]
+      hooks[ sk( key ) ] << [ block, caller[0].to_s ]
     end
 
     alias :setup :add
@@ -41,8 +44,8 @@ module Hooker
     # Pass the specified value to each previously added proc with
     # matching key. Returns (often mutated) value.
     def mutate( key, value )
-      applied << key
-      hooks[ key ].each { |hook| hook[0].call( value ) }
+      applied << sk( key )
+      hooks[ sk( key ) ].each { |hook| hook[0].call( value ) }
       value
     end
 
@@ -50,8 +53,8 @@ module Hooker
     # which should impl binary operations (i.e. return desired value),
     # returning the last value from the last proc.
     def inject( key, value = nil )
-      applied << key
-      hooks[ key ].inject( value ) { |v, hook| hook[0].call( v ) }
+      applied << sk( key )
+      hooks[ sk( key ) ].inject( value ) { |v, hook| hook[0].call( v ) }
     end
 
     # Load the specified file via Kernel.load, with a log message if
@@ -70,15 +73,16 @@ module Hooker
     # hook.
     def log_not_applied
       check_not_applied do |rkey, calls|
-        msg = "Hook #{rkey.inspect} was never applied. Added from:\n"
+        k = rkey.map { |s| s.inspect }.compact.join( ', ' )
+        msg = "Hook #{k} was never applied. Added from:\n"
         calls.each { |cl| msg += "  - #{cl}\n" }
         log msg
       end
     end
 
-    # Yields [ key, [ callers ] ] to block for each hook
-    # key added but not applied.  Often this suggests a typo or other
-    # mistake by the hook Proc author.
+    # Yields [ [ scope, key ], [ callers ] ] to block for each hook
+    # key added but not applied. Often this will suggest a typo or
+    # other mistake on the hook method authors part.
     def check_not_applied
       ( hooks.keys - applied ).each do |rkey|
         calls = hooks[ rkey ].map { |blk, clr| clr }
@@ -109,5 +113,12 @@ module Hooker
       @logger.call( msg ) if @logger
     end
 
+    def sk( key )
+      [ @scope, key ]
+    end
+
   end
+
+  @scope = :default
+
 end

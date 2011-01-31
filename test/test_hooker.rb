@@ -74,13 +74,15 @@ class TestContext < MiniTest::Unit::TestCase
 
   def test_check_not_applied
 
-    Hooker.with do |h|
+    Hooker.scope( :test_scope ) do |h|
       h.add( :used )     { :returned }
       h.add( :not_used ) { flunk "first time" }
       h.add( :not_used ) { flunk "once more"  }
     end
 
-    assert_equal( :returned, Hooker.inject( :used ) )
+    Hooker.scope( :test_scope ) do |h|
+      assert_equal( :returned, h.inject( :used ) )
+    end
 
     not_used_keys = []
     not_used_calls = []
@@ -89,7 +91,7 @@ class TestContext < MiniTest::Unit::TestCase
       not_used_calls += calls
     end
 
-    assert_equal( [ :not_used ], not_used_keys )
+    assert_equal( [ [:test_scope, :not_used] ], not_used_keys )
     assert_equal( 2, not_used_calls.length )
 
     Hooker.log_not_applied
