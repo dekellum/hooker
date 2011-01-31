@@ -48,8 +48,17 @@ Hooker can be yielded to the config file via an alternative Module
 name, so as not to scare your mom, or to fully encapsulate its use:
 
  class Chaplain
-   def self.configure
-     yield Hooker
+   def self.configure( &block )
+     Hooker.with( :church, &block )
+   end
+ end
+
+Support config:
+
+ Chaplain.configure do |c|
+   c.setup( :job ) do |j|
+     j.workers = 3
+     j.timeout = 10 * 60 #seconds
    end
  end
 

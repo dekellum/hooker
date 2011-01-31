@@ -23,9 +23,9 @@ require File.join( TESTDIR, "setup" )
 require 'hooker'
 
 # An alternative entry point from top level
-class AltEntry
-  def self.configure
-    yield Hooker
+class Chaplain
+  def self.configure( &block )
+    Hooker.scope( :church, &block )
   end
 end
 
@@ -104,7 +104,9 @@ class TestContext < MiniTest::Unit::TestCase
 
   def test_load_with_alt_entry
     Hooker.load_file( File.join( TESTDIR, 'alt_entry.rb' ) )
-    assert_equal( :returned, Hooker.inject( :test ) )
+    Hooker.with( :church ) do
+      assert_equal( :returned, Hooker.inject( :test ) )
+    end
   end
 
 end
