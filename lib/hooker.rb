@@ -16,9 +16,10 @@
 
 require 'hooker/base'
 
-# A registry of hooks, added and applied, for indirect setup or
-# configuration purposes.
+# A registry of hooks, added and applied for indirect configuration
+# support.
 module Hooker
+
   class << self
 
     # Yields self to block (for scoping convenience)
@@ -29,8 +30,8 @@ module Hooker
     alias :scope :with
 
     # Add hook block by specified hook key. Will only be executed when
-    # apply is later called with the same key.  Multiple hook blocks
-    # for the same key will be called in the order added.
+    # mutate or inject is later called with the same key.  Multiple
+    # hook blocks for the same key will be called in the order added.
     def add( key, &block )
       hooks[ key ] << [ block, caller[0].to_s ]
     end
@@ -75,9 +76,9 @@ module Hooker
       end
     end
 
-    # Yields [ key, [ callers ] ] to block for each hook key added but
-    # not applied. Often this will suggest a typo or other mistake on
-    # the hook method authors part.
+    # Yields [ key, [ callers ] ] to block for each hook
+    # key added but not applied.  Often this suggests a typo or other
+    # mistake by the hook Proc author.
     def check_not_applied
       ( hooks.keys - applied ).each do |rkey|
         calls = hooks[ rkey ].map { |blk, clr| clr }
