@@ -57,6 +57,12 @@ module Hooker
       hooks[ sk( key ) ].inject( value ) { |v, hook| hook[0].call( v ) }
     end
 
+    # Merge returned values from each added proc to the initial value
+    def merge( key, value = {} )
+      applied << sk( key )
+      hooks[ sk( key ) ].inject( value ) { |v, hook| v.merge( hook[0].call ) }
+    end
+
     # Load the specified file via Kernel.load, with a log message if
     # set.
     def load_file( file )

@@ -72,6 +72,15 @@ class TestContext < MiniTest::Unit::TestCase
     assert_equal( "b", h[ :prop ] )
   end
 
+  def test_merge
+    Hooker.add( :test ) { { :a => 1, :b => 2                   } }
+    Hooker.add( :test ) { {                   :c => 3          } }
+
+    h = Hooker.merge( :test,
+                          { :a => 0,                   :d => 4 } )
+    assert_equal( h,      { :a => 1, :b => 2, :c => 3, :d => 4 } )
+  end
+
   def test_check_not_applied
 
     Hooker.scope( :test_scope ) do |h|
