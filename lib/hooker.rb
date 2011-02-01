@@ -70,6 +70,13 @@ module Hooker
       load( file, true ) #wrap in in anonymous module
     end
 
+    # Register -c/--config flags on given OptionParser to load_file
+    def register_config( opts )
+      opts.on( "-c", "--config FILE", "Load configuration file") do |file|
+        load_file( file )
+      end
+    end
+
     # Register to yield log messages to the given block.
     def log_with( &block )
       @logger = block
