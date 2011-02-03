@@ -38,7 +38,7 @@ Then the following configuration of the job could optionally be loaded
 and applied to override Job defaults:
 
  Hooker.with do |h|
-   h.setup( :job ) do |j|
+   h.setup_job do |j|
      j.workers = 3
      j.timeout = 10 * 60 #seconds
    end
@@ -56,7 +56,7 @@ name, so as not to scare your mom, or to fully encapsulate its use:
 Supports the config:
 
  Chaplain.configure do |c|
-   c.setup( :job ) do |j|
+   c.setup_job do |j|
      j.workers = 3
      j.timeout = 10 * 60 #seconds
    end

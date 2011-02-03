@@ -1,5 +1,5 @@
 Chaplain.configure do |h|
-  h.setup( :test ) do
+  h.setup_test do
     :returned
   end
 end
