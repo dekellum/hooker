@@ -89,9 +89,8 @@ class TestContext < MiniTest::Unit::TestCase
       h.add( :not_used ) { flunk "once more"  }
     end
 
-    Hooker.scope( :test_scope ) do |h|
-      assert_equal( :returned, h.inject( :used ) )
-    end
+    assert_equal( :returned,
+                  Hooker.inject( [ :test_scope, :used ] ) )
 
     not_used_keys = []
     not_used_calls = []
@@ -100,10 +99,25 @@ class TestContext < MiniTest::Unit::TestCase
       not_used_calls += calls
     end
 
-    assert_equal( [ [:test_scope, :not_used] ], not_used_keys )
+    assert_equal( [ [ :test_scope, :not_used ] ], not_used_keys )
     assert_equal( 2, not_used_calls.length )
 
     Hooker.log_not_applied
+  end
+
+  def test_check_not_applied_if_added_after
+
+    Hooker.scope( :test_scope ) do |h|
+      assert_nil( h.inject( :not_used ) )
+      h.add( :not_used ) { :returned }
+
+      not_used_keys = []
+      not_used_keys = Hooker.check_not_applied do |rkey|
+        not_used_keys << rkey
+      end
+      assert_equal( [ [:test_scope, :not_used] ], not_used_keys )
+    end
+
   end
 
   def test_load
@@ -113,9 +127,7 @@ class TestContext < MiniTest::Unit::TestCase
 
   def test_load_with_alt_entry
     Hooker.load_file( File.join( TESTDIR, 'alt_entry.rb' ) )
-    Hooker.with( :church ) do
-      assert_equal( :returned, Hooker.inject( :test ) )
-    end
+    assert_equal( :returned, Hooker.inject( [ :church, :test ] ) )
   end
 
 end

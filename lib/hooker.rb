@@ -36,6 +36,7 @@ module Hooker
     # apply or inject is later called with the same key.  Multiple
     # hook blocks for the same key will be called in the order added.
     def add( key, &block )
+      applied.delete( sk( key ) )
       hooks[ sk( key ) ] << [ block, caller[0].to_s ]
     end
 
@@ -127,7 +128,11 @@ module Hooker
     end
 
     def sk( key )
-      [ @scope, key ]
+      if key.is_a?( Array ) && ( key.length == 2 )
+        key
+      else
+        [ @scope, key ]
+      end
     end
 
   end
