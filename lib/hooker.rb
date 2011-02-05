@@ -22,15 +22,13 @@ module Hooker
 
   class << self
 
-    # Yields self to block (for scoping convenience)
+    # Yields self under the given scope to block.
     def with( scp = :default )
       prior, @scope = @scope, scp
       yield self
     ensure
       @scope = prior
     end
-
-    alias :scope :with
 
     # Add hook block by specified hook key. Will only be executed when
     # apply or inject is later called with the same key.  Multiple
@@ -39,8 +37,6 @@ module Hooker
       applied.delete( sk( key ) )
       hooks[ sk( key ) ] << [ block, ( clr || caller.first ).to_s ]
     end
-
-    alias :setup :add
 
     # Allow method setup_<foo> as alias for add( :foo )
     def method_missing( method, *args, &block )
