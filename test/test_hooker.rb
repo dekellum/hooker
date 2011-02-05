@@ -123,7 +123,7 @@ class TestContext < MiniTest::Unit::TestCase
       h.add( :not_used ) { :returned }
 
       not_used_keys = []
-      not_used_keys = Hooker.check_not_applied do |rkey|
+      not_used_keys = Hooker.check_not_applied do |rkey, calls|
         not_used_keys << rkey
       end
       assert_equal( [ [:test_scope, :not_used] ], not_used_keys )
