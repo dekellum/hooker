@@ -31,8 +31,9 @@ module Hooker
     end
 
     # Add hook block by specified hook key. Will only be executed when
-    # apply or inject is later called with the same key.  Multiple
-    # hook blocks for the same key will be called in the order added.
+    # apply, inject, or merge is later called with the same key.
+    # Multiple hook blocks for the same key will be called in the
+    # order added.
     def add( key, clr = nil, &block )
       applied.delete( sk( key ) )
       hooks[ sk( key ) ] << [ block, ( clr || caller.first ).to_s ]
@@ -47,26 +48,32 @@ module Hooker
       end
     end
 
-    # Pass the specified value to each previously added proc with
-    # matching key. Returns (typically mutated) value.
+    # Pass the specified initial value to each previously added Proc
+    # with matching key and returns the mutated value.
     def apply( key, value )
       applied << sk( key )
       hooks[ sk( key ) ].each { |hook| hook[0].call( value ) }
       value
     end
 
-    # Inject value (or nil) into the chain of previously added procs,
-    # which should implement binary operations (i.e. return desired
-    # value), and return the last value from the last proc.
+    # Inject value (or nil) into the chain of previously added Procs,
+    # which should implement binary operations, returning desired
+    # value. Returns the last value from the last proc.
     def inject( key, value = nil )
       applied << sk( key )
       hooks[ sk( key ) ].inject( value ) { |v, hook| hook[0].call( v ) }
     end
 
-    # Merge returned values from each added proc to the initial value
+    # Merge returned values from each added Proc to the initial value
+    # (or empty Hash).
     def merge( key, value = {} )
       applied << sk( key )
       hooks[ sk( key ) ].inject( value ) { |v, hook| v.merge( hook[0].call ) }
+    end
+
+    # Register to yield log messages to the given block.
+    def log_with( &block )
+      @logger = block
     end
 
     # Load the specified file via Kernel.load, with a log message if
@@ -83,11 +90,6 @@ module Hooker
       end
     end
 
-    # Register to yield log messages to the given block.
-    def log_with( &block )
-      @logger = block
-    end
-
     # Log results of check_not_applied, one message per not applied
     # hook.
     def log_not_applied
@@ -99,9 +101,9 @@ module Hooker
       end
     end
 
-    # Yields [ [ scope, key ], [ callers ] ] to block for each hook
-    # key added but not applied.  Often this suggests a typo or other
-    # mistake by the hook Proc author.
+    # Yields [ [ scope, key ], [ caller, ... ] ] to block for each
+    # hook key added but not applied.  Often this suggests a typo or
+    # other mistake by the hook Proc author.
     def check_not_applied
       ( hooks.keys - applied ).each do |rkey|
         calls = hooks[ rkey ].map { |blk, clr| clr }

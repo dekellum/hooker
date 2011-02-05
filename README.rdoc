@@ -16,13 +16,15 @@ files in ruby.
 === Features
 
 * Hook Procs may be added by the configuration source in any order.
+* Hook Procs may be chained and combined via various conventions:
+  Hooker.apply, Hooker.inject, Hooker.merge.
 * Hook Procs are executed only when applied by the extended
   application. Thus a single configuration source may include hook
   Procs that are left unused in certain contexts. This is useful
   when configuring across several different (contextually loaded)
   modules from one source.
-* Optional block scoping of keys, providing a two level hierarchy.
-* Supports chaining of hook Procs.
+* Optional or implicit scoping of keys, providing a two level
+  Hook [:scope, :key] hierarchy.
 * Provides an optional logging extension point Hooker.log_with
 * Can check and list hooks that were not applied, including the call
   site of where added.
