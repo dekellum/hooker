@@ -21,6 +21,7 @@ files in ruby.
   Procs that are left unused in certain contexts. This is useful
   when configuring across several different (contextually loaded)
   modules from one source.
+* Optional block scoping of keys, providing a two level hierarchy.
 * Supports chaining of hook Procs.
 * Provides an optional logging extension point Hooker.log_with
 * Can check and list hooks that were not applied, including the call
@@ -31,7 +32,7 @@ files in ruby.
 Lets say an application has a 'Job' it would like to support
 hooks on:
 
- job = Hooker.mutate( :job, Job.new )
+ job = Hooker.apply( :job, Job.new )
 
 Then the following configuration of the job could optionally be loaded
 and applied to override Job defaults:
@@ -47,8 +48,17 @@ Hooker can be yielded to the config file via an alternative Module
 name, so as not to scare your mom, or to fully encapsulate its use:
 
  class Chaplain
-   def self.configure
-     yield Hooker
+   def self.configure( &block )
+     Hooker.with( :church, &block )
+   end
+ end
+
+Supports the config:
+
+ Chaplain.configure do |c|
+   c.setup( :job ) do |j|
+     j.workers = 3
+     j.timeout = 10 * 60 #seconds
    end
  end
 

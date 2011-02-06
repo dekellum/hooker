@@ -23,9 +23,9 @@ require File.join( TESTDIR, "setup" )
 require 'hooker'
 
 # An alternative entry point from top level
-class AltEntry
-  def self.configure
-    yield Hooker
+class Chaplain
+  def self.configure( &block )
+    Hooker.scope( :church, &block )
   end
 end
 
@@ -61,26 +61,36 @@ class TestContext < MiniTest::Unit::TestCase
     assert_equal( [ :a, :b ], Hooker.inject( :test, [] ) )
   end
 
-  def test_mutate
+  def test_apply
     Hooker.with do |h|
       h.add( :test ) { |h| h[ :prop ] = "a" }
       h.add( :test ) { |h| h[ :prop ] = "b" }
     end
 
-    h = Hooker.mutate( :test, { :prop => "orig" } )
+    h = Hooker.apply( :test, { :prop => "orig" } )
 
     assert_equal( "b", h[ :prop ] )
   end
 
+  def test_merge
+    Hooker.add( :test ) { { :a => 1, :b => 2                   } }
+    Hooker.add( :test ) { {                   :c => 3          } }
+
+    h = Hooker.merge( :test,
+                          { :a => 0,                   :d => 4 } )
+    assert_equal( h,      { :a => 1, :b => 2, :c => 3, :d => 4 } )
+  end
+
   def test_check_not_applied
 
-    Hooker.with do |h|
+    Hooker.scope( :test_scope ) do |h|
       h.add( :used )     { :returned }
       h.add( :not_used ) { flunk "first time" }
       h.add( :not_used ) { flunk "once more"  }
     end
 
-    assert_equal( :returned, Hooker.inject( :used ) )
+    assert_equal( :returned,
+                  Hooker.inject( [ :test_scope, :used ] ) )
 
     not_used_keys = []
     not_used_calls = []
@@ -89,10 +99,25 @@ class TestContext < MiniTest::Unit::TestCase
       not_used_calls += calls
     end
 
-    assert_equal( [ :not_used ], not_used_keys )
+    assert_equal( [ [ :test_scope, :not_used ] ], not_used_keys )
     assert_equal( 2, not_used_calls.length )
 
     Hooker.log_not_applied
+  end
+
+  def test_check_not_applied_if_added_after
+
+    Hooker.scope( :test_scope ) do |h|
+      assert_nil( h.inject( :not_used ) )
+      h.add( :not_used ) { :returned }
+
+      not_used_keys = []
+      not_used_keys = Hooker.check_not_applied do |rkey|
+        not_used_keys << rkey
+      end
+      assert_equal( [ [:test_scope, :not_used] ], not_used_keys )
+    end
+
   end
 
   def test_load
@@ -102,7 +127,7 @@ class TestContext < MiniTest::Unit::TestCase
 
   def test_load_with_alt_entry
     Hooker.load_file( File.join( TESTDIR, 'alt_entry.rb' ) )
-    assert_equal( :returned, Hooker.inject( :test ) )
+    assert_equal( :returned, Hooker.inject( [ :church, :test ] ) )
   end
 
 end
