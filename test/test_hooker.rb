@@ -25,7 +25,7 @@ require 'hooker'
 # An alternative entry point from top level
 class Chaplain
   def self.configure( &block )
-    Hooker.scope( :church, &block )
+    Hooker.with( :church, &block )
   end
 end
 
@@ -94,7 +94,7 @@ class TestContext < MiniTest::Unit::TestCase
 
   def test_check_not_applied
 
-    Hooker.scope( :test_scope ) do |h|
+    Hooker.with( :test_scope ) do |h|
       h.add( :used )     { :returned }
       h.add( :not_used ) { flunk "first time" }
       h.add( :not_used ) { flunk "once more"  }
@@ -118,12 +118,12 @@ class TestContext < MiniTest::Unit::TestCase
 
   def test_check_not_applied_if_added_after
 
-    Hooker.scope( :test_scope ) do |h|
+    Hooker.with( :test_scope ) do |h|
       assert_nil( h.inject( :not_used ) )
       h.add( :not_used ) { :returned }
 
       not_used_keys = []
-      not_used_keys = Hooker.check_not_applied do |rkey|
+      not_used_keys = Hooker.check_not_applied do |rkey, calls|
         not_used_keys << rkey
       end
       assert_equal( [ [:test_scope, :not_used] ], not_used_keys )

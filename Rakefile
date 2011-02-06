@@ -3,7 +3,7 @@
 $LOAD_PATH << './lib'
 
 require 'rubygems'
-gem     'rjack-tarpit', '~> 1.2'
+gem     'rjack-tarpit', '~> 1.3.0'
 require 'rjack-tarpit'
 
 require 'hooker/base'
@@ -13,9 +13,7 @@ t = RJack::TarPit.new( 'hooker', Hooker::VERSION )
 t.specify do |h|
   h.developer( 'David Kellum', 'dek-oss@gravitext.com' )
   h.testlib = :minitest
-  #FIXME: h.extra_deps     += [ [ 'rjack-slf4j',         '~> 1.6.1' ],
-  #                             [ 'rjack-logback',       '~> 1.0.0' ] ]
-  h.extra_dev_deps += [ [ 'minitest',            '>= 1.7.1', '< 2.1' ] ]
+  h.extra_dev_deps += [ [ 'minitest', '>= 1.7.1', '< 2.1' ] ]
 end
 
 # Version/date consistency checks:
