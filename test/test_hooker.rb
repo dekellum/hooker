@@ -61,6 +61,17 @@ class TestContext < MiniTest::Unit::TestCase
     assert_equal( [ :a, :b ], Hooker.inject( :test, [] ) )
   end
 
+  def test_setup_method
+    Hooker.setup_test { :returned } # via method_missing
+    assert_equal( :returned, Hooker.inject( :test ) )
+  end
+
+  def test_not_setup_missing
+    assert_raises( NoMethodError ) do
+      Hooker.bogus_method
+    end
+  end
+
   def test_apply
     Hooker.with do |h|
       h.add( :test ) { |h| h[ :prop ] = "a" }

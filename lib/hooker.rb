@@ -35,12 +35,21 @@ module Hooker
     # Add hook block by specified hook key. Will only be executed when
     # apply or inject is later called with the same key.  Multiple
     # hook blocks for the same key will be called in the order added.
-    def add( key, &block )
+    def add( key, clr = nil, &block )
       applied.delete( sk( key ) )
-      hooks[ sk( key ) ] << [ block, caller[0].to_s ]
+      hooks[ sk( key ) ] << [ block, ( clr || caller.first ).to_s ]
     end
 
     alias :setup :add
+
+    # Allow method setup_<foo> as alias for add( :foo )
+    def method_missing( method, *args, &block )
+      if method.to_s =~ /^setup_(.*)$/ && args.empty?
+        add( $1.to_sym, caller.first, &block )
+      else
+        super
+      end
+    end
 
     # Pass the specified value to each previously added proc with
     # matching key. Returns (typically mutated) value.
@@ -73,7 +82,7 @@ module Hooker
 
     # Register -c/--config flags on given OptionParser to load_file
     def register_config( opts )
-      opts.on( "-c", "--config FILE", "Load configuration file") do |file|
+      opts.on( "-c", "--config FILE", "Load configuration file" ) do |file|
         load_file( file )
       end
     end
