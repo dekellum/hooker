@@ -79,7 +79,11 @@ module Hooker
     # Load the specified file via Kernel.load, with a log message if
     # set.
     def load_file( file )
-      log "Loading file #{file}."
+      log "Loading file #{file}"
+
+      # Workaround for some odd load behavior when not a regular file.
+      IO.read( file )
+
       load( file, true ) #wrap in in anonymous module
     end
 

@@ -141,4 +141,10 @@ class TestContext < MiniTest::Unit::TestCase
     assert_equal( :returned, Hooker.inject( [ :church, :test ] ) )
   end
 
+  def test_load_dir_error
+    assert_raises( Errno::EISDIR ) do
+      Hooker.load_file( File.join( TESTDIR, 'test_load_dir' ) )
+    end
+  end
+
 end

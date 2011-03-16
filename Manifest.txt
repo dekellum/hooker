@@ -8,3 +8,4 @@ test/alt_entry.rb
 test/config.rb
 test/setup.rb
 test/test_hooker.rb
+test/test_load_dir/placeholder
