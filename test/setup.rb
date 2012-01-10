@@ -16,9 +16,8 @@
 
 #### General test setup: LOAD_PATH, logging, console output ####
 
-ldir = File.join( File.dirname( __FILE__ ), "..", "lib" )
-$LOAD_PATH.unshift( ldir ) unless $LOAD_PATH.include?( ldir )
-
 require 'rubygems'
+require 'bundler/setup'
+
 require 'minitest/unit'
 require 'minitest/autorun'
