@@ -6,12 +6,9 @@
 
 Hooker provides a simple registry of hooks or extension points,
 enabling decoupled run time configuration in terse but straight ruby
-syntax.
-
-Inspiration includes {Emacs Hook
-Functions}[http://www.gnu.org/software/emacs/manual/html_node/emacs/Hooks.html]
-(Lisp) and other applications which support configuration
-files in ruby.
+syntax. Inspiration includes
+{Emacs Hook Functions}[http://www.gnu.org/software/emacs/manual/html_node/emacs/Hooks.html]
+and other ruby-based configuration files.
 
 === Features
 
