@@ -74,8 +74,8 @@ class TestContext < MiniTest::Unit::TestCase
 
   def test_apply
     Hooker.with do |h|
-      h.add( :test ) { |h| h[ :prop ] = "a" }
-      h.add( :test ) { |h| h[ :prop ] = "b" }
+      h.add( :test ) { |hsh| hsh[ :prop ] = "a" }
+      h.add( :test ) { |hsh| hsh[ :prop ] = "b" }
     end
 
     h = Hooker.apply( :test, { :prop => "orig" } )
