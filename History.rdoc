@@ -1,6 +1,8 @@
 === 1.0.1 (TBD)
-* Upgrade to tarpit ~> 2.0, bundler Gemfile, gemspec (build)
+* Ensure Errno::EISDIR when mistaken attempt to load a directory,
+  i.e. "./config"
 * Fix shadow warning in tests with 1.9 mode (dev)
+* Upgrade to tarpit ~> 2.0, bundler Gemfile, gemspec (build)
 
 === 1.0.0 (2011-2-6)
 * Initial release.
