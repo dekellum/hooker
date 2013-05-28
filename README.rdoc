@@ -1,6 +1,7 @@
 = Hooker
 
 * http://github.com/dekellum/hooker
+* {<img src="https://travis-ci.org/dekellum/hooker.png" />}[https://travis-ci.org/dekellum/hooker]
 
 == Description
 
