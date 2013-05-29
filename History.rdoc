@@ -1,3 +1,5 @@
+=== 1.0.2 (TBD)
+
 === 1.0.1 (2012-9-12)
 * Ensure Errno::EISDIR when mistaken attempt to load a directory,
   i.e. "./config"
