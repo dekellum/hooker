@@ -1,4 +1,5 @@
 === 1.0.2 (TBD)
+* Add Travis CI test setup (dev)
 * Upgrade to minitest ~> 4.6.2 (dev)
 
 === 1.0.1 (2012-9-12)
