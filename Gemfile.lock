@@ -11,7 +11,7 @@ GEM
       bouncy-castle-java (>= 1.5.0147)
     json (1.8.0)
     json (1.8.0-java)
-    minitest (4.6.2)
+    minitest (4.7.4)
     rake (10.0.4)
     rdoc (3.12.2)
       json (~> 1.4)
@@ -31,5 +31,5 @@ PLATFORMS
 
 DEPENDENCIES
   hooker!
-  minitest (~> 4.6.2)
+  minitest (~> 4.7.4)
   rjack-tarpit (~> 2.0)
