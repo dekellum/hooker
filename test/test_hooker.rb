@@ -112,6 +112,9 @@ class TestContext < MiniTest::Unit::TestCase
 
     assert_equal( [ [ :test_scope, :not_used ] ], not_used_keys )
     assert_equal( 2, not_used_calls.length )
+    not_used_calls.each_with_index do |cl, i|
+      assert_match( /test_check_not_applied/, cl, i )
+    end
 
     Hooker.log_not_applied
   end
