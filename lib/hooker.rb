@@ -24,10 +24,10 @@ module Hooker
 
     # Yields self under the given scope to block.
     def with( scp = :default )
-      prior, @scope = @scope, scp
+      prior = swap_scope( scp )
       yield self
     ensure
-      @scope = prior
+      swap_scope( prior )
     end
 
     # Add hook block by specified hook key. Will only be executed when
@@ -142,12 +142,20 @@ module Hooker
       if key.is_a?( Array ) && ( key.length == 2 )
         key
       else
-        [ @scope, key ]
+        [ scope, key ]
       end
     end
 
-  end
+    def scope
+      Thread.current[:hooker_scope] || :default
+    end
 
-  @scope = :default
+    def swap_scope( s )
+      old = scope
+      Thread.current[:hooker_scope] = s
+      old
+    end
+
+  end
 
 end
