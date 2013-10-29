@@ -18,24 +18,35 @@ and other ruby-based configuration files.
   Hooker.apply, Hooker.inject, Hooker.merge.
 * Hook Procs are executed only when applied by the extended
   application. Thus a single configuration source may include hook
-  Procs that are left unused in certain contexts. This is useful
+  Procs that are left un-executed in certain contexts. This is useful
   when configuring across several different (contextually loaded)
   modules from one source.
-* Optional or implicit scoping of keys, providing a two level
-  Hook [:scope, :key] hierarchy.
-* Provides an optional logging extension point Hooker.log_with
+* Optional or implicit scoping of keys, providing a two level Hook
+  <code>[:scope, :key]</code> hierarchy. The default scope is
+  <code>:default</code>.
+* Optional Hooker.log_with extension point
 * Can check and list hooks that were not applied, including the call
-  site of where added.
+  site of where added, allowing you to test your
+  configurations and avoid typos.
 
 == Synopsis
 
 Lets say an application has a 'Job' it would like to support
-hooks on:
+configuration hooks on. First arrange for any number of configuration
+sources to be loaded via Hooker.load_file. Then apply any loaded hook
+procs to an instance of your Job, like so:
 
+ require 'hooker'
+
+ Hooker.load_file( "config.rb" ) if File.exist?( "config.rb" )
  job = Hooker.apply( :job, Job.new )
 
-Then the following configuration of the job could optionally be loaded
-and applied to override Job defaults:
+You could also use Hooker.register_config with an OptionParser to
+support a <code>-c/--config FILE</code> flag for specifying the
+configuration source.
+
+If Job is to be configured via setters, then the configuration source
+might look like this:
 
  Hooker.with do |h|
    h.setup_job do |j|
@@ -44,8 +55,32 @@ and applied to override Job defaults:
    end
  end
 
-Hooker can be yielded to the config file via an alternative Module
-name, so as not to scare your mom, or to fully encapsulate its use:
+Alternatively, if Job takes a Hash on construction for configuration,
+use Hooker.merge like so:
+
+ opts = Hooker.merge( :job, { workers: 2 } ) #defaults
+ job = Job.new( opts )
+
+...and Hash syntax in the configuration source. Note that unlike JSON
+or YAML, the configuration remains fully interpreted for greater
+expressiveness, for example sharing variables across different
+configured objects:
+
+ Hooker.with do |h|
+   cpus = 3
+
+   h.setup_job do
+     { workers: cpus + 1,
+       timeout: 10 * 60 }
+   end
+
+   h.setup_connection_pool do
+     { size: cpus }
+   end
+ end
+
+Hooker can be yielded to the configuration source via an alternative
+Module.method name, to fully encapsulate its use:
 
  class Chaplain
    def self.configure( &block )
@@ -53,7 +88,7 @@ name, so as not to scare your mom, or to fully encapsulate its use:
    end
  end
 
-Supports the config:
+...supports the configuration source:
 
  Chaplain.configure do |c|
    c.setup_job do |j|
