@@ -28,6 +28,8 @@ and other ruby-based configuration files.
 * Can check and list hooks that were not applied, including the call
   site of where added, allowing you to test your
   configurations and avoid typos.
+* Thread safe (though you should strive to complete all configurable
+  bootstrapping in the main thread).
 
 == Synopsis
 
