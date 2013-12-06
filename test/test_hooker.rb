@@ -156,8 +156,8 @@ class TestContext < MiniTest::Unit::TestCase
     Hooker.with( :t2 ) { |h| h.add( :common ) { :t2 } }
 
     threads = 11.times.map do |i|
-      Thread.new do
-        Hooker.with( i.even? ? :t1 : :t2 ) do
+      Thread.new( i.even? ? :t1 : :t2 ) do |scope|
+        Hooker.with( scope ) do
           sleep( rand * 0.100 )
           Hooker.inject( :common )
         end
