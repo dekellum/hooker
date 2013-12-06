@@ -1,4 +1,8 @@
-=== 1.1.0 (TBD)
+=== 1.1.0 (2013-12-6)
+* Thread safety: Hooker.with via thread-local and lock around common
+  structures. Note: It remains generally advisable to complete all
+  configurable application bootstrapping in the main thread whenever
+  possible.
 * Add Travis CI test setup (dev)
 * Upgrade to minitest ~> 4.7.4 (dev)
 
