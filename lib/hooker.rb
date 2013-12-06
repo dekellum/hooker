@@ -15,6 +15,7 @@
 #++
 
 require 'hooker/base'
+require 'thread'
 
 # A registry of hooks, added and applied for indirect configuration
 # support.
@@ -24,19 +25,23 @@ module Hooker
 
     # Yields self under the given scope to block.
     def with( scp = :default )
-      prior, @scope = @scope, scp
+      prior = swap_scope( scp )
       yield self
     ensure
-      @scope = prior
+      swap_scope( prior )
     end
 
     # Add hook block by specified hook key. Will only be executed when
     # apply, inject, or merge is later called with the same key.
     # Multiple hook blocks for the same key will be called in the
     # order added.
-    def add( key, clr = nil, &block )
-      applied.delete( sk( key ) )
-      hooks[ sk( key ) ] << [ block, ( clr || caller.first ).to_s ]
+    def add( k, clr = nil, &block )
+      key = sk( k )
+      clr ||= caller.first
+      LOCK.synchronize do
+        applied.delete( key )
+        hooks[ key ] << [ block, clr.to_s ]
+      end
     end
 
     # Allow method setup_<foo> as alias for add( :foo )
@@ -51,24 +56,27 @@ module Hooker
     # Pass the specified initial value to each previously added Proc
     # with matching key and returns the mutated value.
     def apply( key, value )
-      applied << sk( key )
-      hooks[ sk( key ) ].each { |hook| hook[0].call( value ) }
-      value
+      sync_on_hooks( key ) do |hks|
+        hks.each { |hook| hook[0].call( value ) }
+        value
+      end
     end
 
     # Inject value (or nil) into the chain of previously added Procs,
     # which should implement binary operations, returning desired
     # value. Returns the last value from the last proc.
     def inject( key, value = nil )
-      applied << sk( key )
-      hooks[ sk( key ) ].inject( value ) { |v, hook| hook[0].call( v ) }
+      sync_on_hooks( key ) do |hks|
+        hks.inject( value ) { |v, hook| hook[0].call( v ) }
+      end
     end
 
     # Merge returned values from each added Proc to the initial value
     # (or empty Hash).
     def merge( key, value = {} )
-      applied << sk( key )
-      hooks[ sk( key ) ].inject( value ) { |v, hook| v.merge( hook[0].call ) }
+      sync_on_hooks( key ) do |hks|
+        hks.inject( value ) { |v, hook| v.merge( hook[0].call ) }
+      end
     end
 
     # Register to yield log messages to the given block.
@@ -109,13 +117,17 @@ module Hooker
     # hook key added but not applied.  Often this suggests a typo or
     # other mistake by the hook Proc author.
     def check_not_applied
-      ( hooks.keys - applied ).each do |rkey|
-        calls = hooks[ rkey ].map { |blk, clr| clr }
-        yield( rkey, calls )
+      LOCK.synchronize do
+        ( hooks.keys - applied ).each do |rkey|
+          calls = hooks[ rkey ].map { |blk, clr| clr }
+          yield( rkey, calls )
+        end
       end
     end
 
     private
+
+    LOCK = Mutex.new
 
     # Hash of hook keys to array of procs.
     def hooks
@@ -129,9 +141,11 @@ module Hooker
 
     # Clears all Hooker state.
     def clear
-      @hooks = nil
-      @applied = nil
-      @logger = nil
+      LOCK.synchronize do
+        @hooks = nil
+        @applied = nil
+        @logger = nil
+      end
     end
 
     def log( msg )
@@ -142,12 +156,32 @@ module Hooker
       if key.is_a?( Array ) && ( key.length == 2 )
         key
       else
-        [ @scope, key ]
+        [ scope, key ]
       end
     end
 
-  end
+    def scope
+      Thread.current[:hooker_scope] || :default
+    end
 
-  @scope = :default
+    def swap_scope( s )
+      old = scope
+      Thread.current[:hooker_scope] = s
+      old
+    end
+
+    def sync_on_hooks( k )
+      key = sk( k )
+      LOCK.synchronize do
+        begin
+          yield hooks[ key ]
+        ensure
+          applied << key
+        end
+      end
+
+    end
+
+  end
 
 end

@@ -21,6 +21,7 @@ TESTDIR = File.dirname( __FILE__ )
 require File.join( TESTDIR, "setup" )
 
 require 'hooker'
+require 'thread'
 
 # An alternative entry point from top level
 class Chaplain
@@ -112,6 +113,9 @@ class TestContext < MiniTest::Unit::TestCase
 
     assert_equal( [ [ :test_scope, :not_used ] ], not_used_keys )
     assert_equal( 2, not_used_calls.length )
+    not_used_calls.each_with_index do |cl, i|
+      assert_match( /test_check_not_applied/, cl, i )
+    end
 
     Hooker.log_not_applied
   end
@@ -144,6 +148,24 @@ class TestContext < MiniTest::Unit::TestCase
   def test_load_dir_error
     assert_raises( Errno::EISDIR ) do
       Hooker.load_file( File.join( TESTDIR, 'test_load_dir' ) )
+    end
+  end
+
+  def test_threaded_with
+    Hooker.with( :t1 ) { |h| h.add( :common ) { :t1 } }
+    Hooker.with( :t2 ) { |h| h.add( :common ) { :t2 } }
+
+    threads = 11.times.map do |i|
+      Thread.new do
+        Hooker.with( i.even? ? :t1 : :t2 ) do
+          sleep( rand * 0.100 )
+          Hooker.inject( :common )
+        end
+      end
+    end
+
+    11.times do |i|
+      assert_equal( i.even? ? :t1 : :t2, threads[i].value, "thread #{i}" )
     end
   end
 
